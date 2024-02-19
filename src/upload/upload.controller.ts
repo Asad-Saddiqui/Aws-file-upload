@@ -17,13 +17,17 @@ import { Bucket } from './validators/Bucket.dto';
 export class UploadController {
   constructor(private readonly uploadService: UploadService) {}
 
+  // Endpoint for handling file uploads
   @Post()
   @UseInterceptors(FilesInterceptor('files'))
   async upload(
+    // Uploaded files, processed by FilesInterceptor
     @UploadedFiles(
       new ParseFilePipe({
         validators: [
+          // Validate max file size
           new MaxFileSizeValidator({ maxSize: 2 * 1024 * 1024 }),
+          // Validate file types
           new FileTypeValidator({
             allowedTypes: ['image/jpeg', 'image/jpg', 'image/png'],
           }),
@@ -33,6 +37,7 @@ export class UploadController {
     files: Express.Multer.File[],
     @Body(new ValidationPipe()) buketName: Bucket,
   ) {
+    // Call the uploadService to handle the file upload to AWS S3
     return this.uploadService.uploadFile_AWS_S3(files, buketName);
   }
 }
